@@ -55,7 +55,7 @@ public class Main {
                            .filter(Files::isRegularFile)
                             //.filter()
                            .filter(path1 -> path1.toFile().getName().matches(finalS))//"d.*"
-                           //.filter(path4 -> finalFilterName ?path4.toString().contains(finalSubstring):true)
+                           .filter(path4 -> finalFilterName ?path4.toString().contains(finalSubstring):true)
                             .map(Path::toAbsolutePath)
                             .forEach(System.out::println);
                 } catch (java.io.IOException e) {
