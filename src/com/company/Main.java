@@ -1,21 +1,18 @@
 package com.company;
 
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Main {
 
     public static void main(String[] args) {
         System.out.println(Main.class.getProtectionDomain().getCodeSource().getLocation());
-        while (1==1) {
+        while (true) {
             System.out.println("Start new search. Input 'end' to stop searching. Otherwise type any symbol");
             Scanner scan = new Scanner(System.in);
             String endString = scan.nextLine();
@@ -32,32 +29,40 @@ public class Main {
             Path path = Paths.get(pathString);
 
             System.out.println("if you want to search directories(type 'dir') otherwise search files");
-            Boolean dirSearch = false;
+            final Boolean dirSearch;
             String dirString = scan.nextLine();
-            if (dirString.equals("dir")) {
+            if (dirString.equals("dir"))
                 dirSearch=true;
-            }
+            else
+                dirSearch = false;
 
             System.out.println("regular expressions filter (type 'yes') otherwise no filter");
-            Boolean filterReg = false;
-            String regularString = scan.nextLine();
-            if (regularString.equals("yes")) {
+            final Boolean filterReg;
+            final String regularString;
+            String regularExpressionFilter = scan.nextLine();
+            if (regularExpressionFilter.equals("yes")) {
                 regularString = scan.nextLine();
                 filterReg=true;
+            } else {
+                filterReg = false;
+                regularString = "";
             }
 
-            Boolean filterName = false;
+            final Boolean filterName;
             System.out.println("simple filter by name (type 'yes') otherwise no filter");
-            String substring="";
+            final String subString;
             String simpleString = scan.nextLine();
             if (simpleString.equals("yes")) {
                 filterName = true;
                 System.out.println("input substring");
-                substring = scan.nextLine();
+                subString = scan.nextLine();
+            } else {
+                filterName = false;
+                subString = "";
             }
 
-            Boolean filterSize = false;
-            int minSize=0, maxSize=0;
+            final Boolean filterSize;
+            final int minSize, maxSize;
             System.out.println("filter size filter (type 'yes') otherwise no filter)");
             String sizeString=scan.nextLine();
             if (sizeString.equals("yes")){
@@ -67,38 +72,35 @@ public class Main {
                 System.out.println("input maximum size in Kb");
                 maxSize = scan.nextInt();
                 scan.nextLine();
+            } else {
+                filterSize = false;
+                minSize=0;
+                maxSize=0;
             }
 
-            Boolean textFileSearch = false;
+            final Boolean textFileSearch;
             System.out.println("filter text files by keywords (type 'yes') otherwise no filter)");
-            String keyWord="";
+            final String keyWord;
             String textString=scan.nextLine();
             if (textString.equals("yes")){
                 textFileSearch=true;
                 System.out.println("input substring");
                 keyWord = scan.nextLine();
+            } else {
+                textFileSearch = false;
+                keyWord = "";
             }
 
             if (Files.exists(path)) {
                 try (Stream<Path> walk = Files.walk(path)) {
-                    String finalRegularString = regularString;
-                    Boolean finalFilterName = filterName;
-                    String finalSubstring = substring;
-                    Boolean finalDirSearch = dirSearch;
-                    Boolean finalFilterReg = filterReg;
-                    Boolean finalFilterSize = filterSize;
-                    int finalMinSize = minSize;
-                    int finalMaxSize = maxSize;
-                    Boolean finalTextFileSearch = textFileSearch;
-                    String finalKeyWord = keyWord;
                     walk
                            //.filter(Files::isRegularFile)
                             //.filter()
-                           .filter(path1 -> (finalFilterReg ? path1.toFile().getName().matches(finalRegularString):true) /* "d.*" */
-                           && (finalFilterName ? path1.toString().contains(finalSubstring):true)
-                           && (finalDirSearch ? path1.toFile().isDirectory():path1.toFile().isFile())
-                           && (finalFilterSize ? (getSizeKb(path1)>= finalMinSize && getSizeKb(path1)<= finalMaxSize):true)
-                           && (finalTextFileSearch ? testFile(path1, finalKeyWord):true))
+                           .filter(path1 -> (filterReg ? path1.toFile().getName().matches(regularString):true) /* "d.*" */
+                           && (filterName ? path1.toString().contains(subString):true)
+                           && (dirSearch ? path1.toFile().isDirectory():path1.toFile().isFile())
+                           && (filterSize ? (getSizeKb(path1)>= minSize && getSizeKb(path1)<= maxSize):true)
+                           && (textFileSearch ? testFile(path1, keyWord):true))
                             .map(Path::toAbsolutePath)
                             .forEach(System.out::println);
                 } catch (java.io.IOException e) {
