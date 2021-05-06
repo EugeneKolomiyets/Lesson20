@@ -95,7 +95,6 @@ public class Main {
                 try (Stream<Path> walk = Files.walk(path)) {
                     walk
                            //.filter(Files::isRegularFile)
-                            //.filter()
                            .filter(path1 -> (filterReg ? path1.toFile().getName().matches(regularString):true) /* "d.*" */
                            && (filterName ? path1.toString().contains(subString):true)
                            && (dirSearch ? path1.toFile().isDirectory():path1.toFile().isFile())
